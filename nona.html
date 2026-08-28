@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Birthdate & Time Calculator</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+}
+
+.card{
+    width:100%;
+    max-width:440px;
+    background:#fff;
+    border-radius:25px;
+    padding:28px;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+h1{
+    text-align:center;
+    color:#222;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#777;
+    margin-bottom:25px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    color:#444;
+    margin-bottom:8px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:2px solid #ddd;
+    border-radius:12px;
+    font-size:16px;
+    margin-bottom:18px;
+}
+
+input:focus{
+    outline:none;
+    border-color:#667eea;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:0;
+    border-radius:12px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.result{
+    display:none;
+    margin-top:25px;
+}
+
+.age{
+    text-align:center;
+    padding:22px;
+    border-radius:18px;
+    background:#f4f5ff;
+    margin-bottom:15px;
+}
+
+.age-number{
+    font-size:42px;
+    font-weight:bold;
+    color:#667eea;
+}
+
+.age-text{
+    color:#777;
+}
+
+.info{
+    display:grid;
+    gap:10px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    padding:14px;
+    border-radius:12px;
+    background:#f7f7f7;
+}
+
+.row span:last-child{
+    font-weight:bold;
+    color:#555;
+}
+
+.countdown{
+    margin-top:15px;
+    padding:20px;
+    border-radius:18px;
+    text-align:center;
+    background:linear-gradient(135deg,#fff0f6,#f0eaff);
+}
+
+.countdown h3{
+    margin-bottom:12px;
+    color:#444;
+}
+
+#countdown{
+    font-size:20px;
+    font-weight:bold;
+    color:#764ba2;
+    line-height:1.6;
+}
+
+.error{
+    display:none;
+    color:#e53935;
+    text-align:center;
+    margin-top:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🎂 Birthdate Calculator</h1>
+
+<p class="subtitle">
+Calculate your exact age from birth date & time
+</p>
+
+<label>📅 Date of Birth</label>
+<input type="date" id="birthDate">
+
+<label>⏰ Birth Time</label>
+<input type="time" id="birthTime">
+
+<button onclick="calculateAge()">
+Calculate Age 🎉
+</button>
+
+<div class="error" id="error"></div>
+
+<div class="result" id="result">
+
+    <div class="age">
+        <div class="age-number" id="years">0</div>
+        <div class="age-text">Years Old</div>
+    </div>
+
+    <div class="info">
+
+        <div class="row">
+            <span>🎂 Birth Date</span>
+            <span id="showDate">-</span>
+        </div>
+
+        <div class="row">
+            <span>⏰ Birth Time</span>
+            <span id="showTime">-</span>
+        </div>
+
+        <div class="row">
+            <span>📅 Birth Day</span>
+            <span id="birthDay">-</span>
+        </div>
+
+        <div class="row">
+            <span>🎈 Next Birthday</span>
+            <span id="nextBirthday">-</span>
+        </div>
+
+    </div>
+
+    <div class="countdown">
+        <h3>🎉 Next Birthday Countdown</h3>
+        <div id="countdown">-</div>
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+let countdownTimer;
+
+function calculateAge(){
+
+    clearInterval(countdownTimer);
+
+    const date = document.getElementById("birthDate").value;
+    const time = document.getElementById("birthTime").value;
+
+    const error = document.getElementById("error");
+    const result = document.getElementById("result");
+
+    if(!date || !time){
+
+        error.textContent =
+        "Please enter your birth date and birth time.";
+
+        error.style.display = "block";
+        result.style.display = "none";
+
+        return;
+    }
+
+    const birth = new Date(date + "T" + time);
+    const now = new Date();
+
+    if(birth > now){
+
+        error.textContent =
+        "Birth date cannot be in the future.";
+
+        error.style.display = "block";
+        result.style.display = "none";
+
+        return;
+    }
+
+    error.style.display = "none";
+    result.style.display = "block";
+
+    // Show birth date
+    document.getElementById("showDate").textContent =
+        birth.toLocaleDateString("en-IN",{
+            day:"numeric",
+            month:"long",
+            year:"numeric"
+        });
+
+    // Show birth time
+    document.getElementById("showTime").textContent =
+        birth.toLocaleTimeString("en-IN",{
+            hour:"2-digit",
+            minute:"2-digit"
+        });
+
+    // Birth day
+    document.getElementById("birthDay").textContent =
+        birth.toLocaleDateString("en-IN",{
+            weekday:"long"
+        });
+
+    // Calculate years
+    let years = now.getFullYear() - birth.getFullYear();
+
+    const birthdayThisYear = new Date(
+        now.getFullYear(),
+        birth.getMonth(),
+        birth.getDate(),
+        birth.getHours(),
+        birth.getMinutes()
+    );
+
+    if(now < birthdayThisYear){
+        years--;
+    }
+
+    document.getElementById("years").textContent = years;
+
+    // Next birthday
+    let next = new Date(
+        now.getFullYear(),
+        birth.getMonth(),
+        birth.getDate(),
+        birth.getHours(),
+        birth.getMinutes()
+    );
+
+    if(next <= now){
+        next.setFullYear(now.getFullYear() + 1);
+    }
+
+    document.getElementById("nextBirthday").textContent =
+        next.toLocaleDateString("en-IN",{
+            day:"numeric",
+            month:"short",
+            year:"numeric"
+        });
+
+    // Countdown
+    function updateCountdown(){
+
+        const current = new Date();
+        const difference = next - current;
+
+        if(difference <= 0){
+            document.getElementById("countdown").textContent =
+                "🎉 Happy Birthday!";
+            return;
+        }
+
+        const days =
+            Math.floor(difference / 86400000);
+
+        const hours =
+            Math.floor((difference % 86400000) / 3600000);
+
+        const minutes =
+            Math.floor((difference % 3600000) / 60000);
+
+        const seconds =
+            Math.floor((difference % 60000) / 1000);
+
+        document.getElementById("countdown").textContent =
+            days + " Days • " +
+            hours + " Hours • " +
+            minutes + " Minutes • " +
+            seconds + " Seconds";
+    }
+
+    updateCountdown();
+
+    countdownTimer = setInterval(updateCountdown,1000);
+}
+
+</script>
+
+</body>
+</html>
